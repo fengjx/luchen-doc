@@ -27,7 +27,7 @@ features:
     title: 微服务
     details: 在单体服务的基础上，只需要增加一个 Register 即可完成服务注册。
   - icon: ⚙
-    title: 网关支持（alpha）
+    title: 网关支持（todo）
     details: 实现了支持静态路由和动态服务发现网关服务，通过插件化很容易对功能进行扩展。
 ---
 <style>
