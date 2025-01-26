@@ -21,11 +21,11 @@ hero:
 
 features:
   - icon: 🖥
-    title: 单体服务
-    details: 秉承go-kit的简单，自己选择使用微服务还是单体服务。
+    title: 易扩展
+    details: 秉承go-kit的简单和设计理念，单体服务和微服务都有支持。
   - icon: 🚀
-    title: 微服务
-    details: 在单体服务的基础上，只需要增加一个 Register 即可完成服务注册。
+    title: 完善工具链
+    details: CRUD代码一键生成，使用 proto 文件定义服务接口，生成服务代码。
   - icon: ⚙
     title: 网关支持（todo）
     details: 实现了支持静态路由和动态服务发现网关服务，通过插件化很容易对功能进行扩展。

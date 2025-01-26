@@ -1,50 +1,40 @@
-// test cmd: curl -i http://localhost:8080/say-hello?name=luchen
+package main
+
+import (
+	"context"
+	"reflect"
+
+	"github.com/fengjx/luchen"
+)
 
 func main() {
-	httpSvr := luchen.NewHTTPServer(
-		luchen.WithServiceName("helloworld"),
+	// 创建 http server
+	hs := luchen.NewHTTPServer(
 		luchen.WithServerAddr(":8080"),
-	).Handler(
-		&helloHandler{},
 	)
-	luchen.Start(httpSvr)
-
-	quit := make(chan os.Signal)
-	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT, syscall.SIGKILL)
-
-	<-quit
-	luchen.Stop()
-}
-
-type helloHandler struct {
-}
-
-func (h *helloHandler) Bind(router *luchen.HTTPServeMux) {
-	router.Handle("/say-hello", h.sayHello())
-}
-
-func (h *helloHandler) sayHello() *httptransport.Server {
-	return luchen.NewHTTPTransportServer(
-		makeSayHelloEndpoint(),
-		decodeSayHello,
-		encodeSayHello,
-	)
-}
-
-func makeSayHelloEndpoint() kitendpoint.Endpoint {
-	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
-		name := request.(string)
-		response = "hello: " + name
-		return
+	def := &luchen.EndpointDefine{
+		Endpoint: sayHello,
+		Path:     "/say-hello",
+		ReqType:  reflect.TypeOf(&sayHelloReq{}),
+		RspType:  reflect.TypeOf(&sayHelloRsp{}),
 	}
+	hs.Handle(def)
+	// 启动服务并监听 kill 信号
+	hs.Start()
 }
 
-func decodeSayHello(_ context.Context, r *http.Request) (interface{}, error) {
-	name := r.URL.Query().Get("name")
-	return name, nil
+func sayHello(ctx context.Context, request any) (response any, err error) {
+	req := request.(*sayHelloReq)
+	response = &sayHelloRsp{
+		Msg: "hello " + req.Name,
+	}
+	return
 }
 
-func encodeSayHello(_ context.Context, w http.ResponseWriter, resp interface{}) error {
-	_, err := w.Write([]byte(resp.(string)))
-	return err
+type sayHelloReq struct {
+	Name string `json:"name"`
+}
+
+type sayHelloRsp struct {
+	Msg string `json:"msg"`
 }
