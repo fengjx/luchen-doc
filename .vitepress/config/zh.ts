@@ -1,4 +1,4 @@
-import {type DefaultTheme, defineConfig} from 'vitepress'
+import { type DefaultTheme, defineConfig } from 'vitepress'
 
 export const zh = defineConfig({
   lang: 'zh-Hans',
@@ -8,8 +8,8 @@ export const zh = defineConfig({
     nav: nav(),
 
     sidebar: {
-      '/guide/': {base: '/guide/', items: sidebarGuide()},
-      '/lucky/': {base: '/lucky/', items: sidebarLucky()},
+      '/guide/': { base: '/guide/', items: sidebarGuide() },
+      '/lucky/': { base: '/lucky/', items: sidebarLucky() }
     },
 
     editLink: {
@@ -32,7 +32,7 @@ export const zh = defineConfig({
     },
 
     lastUpdated: {
-      text: '最后更新于',
+      text: '最后更新于'
     },
 
     langMenuLabel: '多语言',
@@ -55,19 +55,19 @@ function nav(): DefaultTheme.NavItem[] {
       text: '实践案例',
       items: [
         {
-          text: "lucky",
+          text: 'lucky',
           link: '/lucky/introduction',
           activeMatch: '/lucky/'
         }
-      ],
+      ]
     },
     {
       text: 'GoDoc',
-      link: 'https://pkg.go.dev/github.com/fengjx/luchen',
+      link: 'https://pkg.go.dev/github.com/fengjx/luchen'
     },
     {
       text: '交流反馈',
-      link: 'about',
+      link: 'about'
     }
   ]
 }
@@ -78,52 +78,47 @@ function sidebarGuide(): DefaultTheme.SidebarItem[] {
       text: '开始',
       collapsed: false,
       items: [
-        {text: '简介', link: 'introduction'},
-        {text: '快速开始', link: 'getting-started'},
-        {text: '工程规范', link: 'specification'},
-      ]
-    },
-    {
-      text: '服务端',
-      collapsed: false,
-      items: [
-        {text: 'HTTP server', link: 'http-server'},
-        {text: 'gRPC server', link: 'grpc-server'},
-        {text: '服务注册&发现', link: 'register'},
-        {text: 'gateway（alpha）', link: 'gateway'},
+        { text: '简介', link: 'introduction' },
+        { text: '快速开始', link: 'getting-started' },
+        { text: '工程规范', link: 'specification' }
       ]
     },
     {
       text: '端点',
       collapsed: false,
       items: [
-        {text: '端点定义', link: 'endpoint'},
-        {text: '中间件', link: 'endpoint-middleware'},
+        { text: '协议', link: 'proto' },
+        { text: '端点定义', link: 'endpoint' },
+        { text: '中间件', link: 'endpoint-middleware' }
+      ]
+    },
+    {
+      text: '服务端',
+      collapsed: false,
+      items: [
+        { text: 'HTTP server', link: 'http-server' },
+        { text: 'gRPC server', link: 'grpc-server' },
+        { text: '服务注册&发现', link: 'register' }
       ]
     },
     {
       text: '客户端',
       collapsed: false,
-      items: [
-        {text: 'HTTP client', link: 'http-client'},
-        {text: 'gRPC client', link: 'grpc-client'},
-      ]
+      items: [{ text: 'gRPC client', link: 'grpc-client' }]
     },
     {
       text: '其他',
       collapsed: false,
       items: [
-        {text: '环境', link: 'env'},
-        {text: '配置加载', link: 'config'},
-        {text: '日志', link: 'log'},
+        { text: '环境', link: 'env' },
+        { text: '配置加载', link: 'config' },
+        { text: '日志', link: 'log' }
       ]
     },
     {
       text: '工具链',
       collapsed: false,
-      items: [
-        {text: 'cli命令', link: 'lc'},
-      ]
+      items: [{ text: 'cli命令', link: 'lc' }]
     }
   ]
 }
@@ -134,20 +129,20 @@ function sidebarLucky(): DefaultTheme.SidebarItem[] {
       text: '开始',
       collapsed: false,
       items: [
-        {text: '简介', link: 'introduction'},
-        {text: '快速开始', link: 'getting-started'},
+        { text: '简介', link: 'introduction' },
+        { text: '快速开始', link: 'getting-started' }
       ]
     },
     {
       text: '指南',
       collapsed: false,
       items: [
-        {text: '工程说明', link: 'project'},
-        {text: '代码生成', link: 'migrate'},
-        {text: '菜单配置', link: 'menu'},
-        {text: '页面开发', link: 'page'},
-        {text: '数据字典', link: 'dict'},
-        {text: '系统配置', link: 'config'},
+        { text: '工程说明', link: 'project' },
+        { text: '代码生成', link: 'migrate' },
+        { text: '菜单配置', link: 'menu' },
+        { text: '页面开发', link: 'page' },
+        { text: '数据字典', link: 'dict' },
+        { text: '系统配置', link: 'config' }
       ]
     }
   ]

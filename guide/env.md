@@ -2,10 +2,10 @@
 
 ## 环境变量
 
-| 变量名                 | 说明                                                |
-|---------------------|---------------------------------------------------|
+| 变量名              | 说明                                                                     |
+| ------------------- | ------------------------------------------------------------------------ |
 | APP_ENV             | 运行环境，默认 local；可取值：local-本地，dev-开发，test-测试，prod-生产 |
-| LUCHEN_ETCD_ADDRESS | etcd 地址，默认：localhost:2379                         |
+| LUCHEN_ETCD_ADDRESS | etcd 地址，默认：localhost:2379                                          |
 
 
 ## 方法说明
@@ -19,9 +19,6 @@ func IsTest() bool
 
 // IsDev 返回是否是开发环境
 func IsDev() bool
-
-// IsLocal 返回是否是本地环境
-func IsLocal() bool
 
 // GetAppName 可执行文件名
 func GetAppName() string

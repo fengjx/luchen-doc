@@ -22,23 +22,16 @@ log.Println(helloResp.Message)
 ```
 
 ```bash
-$ cd _example/quickstart/cli/greetergrpccli
 $ go run main.go
 
 2024/04/27 15:53:52 Hi: fengjx
 ```
 
-源码：[greetergrpccli](https://github.com/fengjx/luchen/tree/dev/_example/quickstart/cli/greetergrpccli/main.go)
-
 ## 通过服务发现请求
 
 ```go
-grpcClient := luchen.GetGRPCClient(
-    "rpc.greeter",
-    grpc.WithTransportCredentials(insecure.NewCredentials()),
-)
-greeterClient := pb.NewGreeterClient(grpcClient)
-helloResp, err := greeterClient.SayHello(context.Background(), &pb.HelloReq{
+greeterClient := pbgreet.NewGreeterService("grpc.helloworld")
+helloResp, err := greeterClient.SayHello(context.Background(), &pbgreet.HelloReq{
     Name: "fengjx",
 })
 if err != nil {
@@ -54,5 +47,5 @@ $ go run main.go
 2024/04/27 15:53:00 Hi: fengjx
 ```
 
-源码：[greetergrpcmicroclient](https://github.com/fengjx/luchen/tree/dev/_example/quickstart/cli/greetergrpcmicroclient/main.go)
+源码：[registrar/rpccli](https://github.com/fengjx/luchen/blob/master/_example/registrar/rpccli/main.go)
 

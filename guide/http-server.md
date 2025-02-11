@@ -4,8 +4,8 @@
 
 ```go
 httpServer := luchen.NewHTTPServer(
-    "helloworld",
-    luchen.WithHTTPAddr(":8080"),
+    luchen.WithServiceName("helloworld"),
+    luchen.WithServerAddr(":8080"),
 )
 ```
 
@@ -32,153 +32,65 @@ func WithServerMetadata(md map[string]any) ServerOption
 
 ## 路由和端点绑定
 
-handler 接口定义
+使用 Handle 方法注册路由和端点：
+
 ```go
-// HTTPHandler http 请求处理器接口
-type HTTPHandler interface {
-	// Bind 绑定路由
-	Bind(router *HTTPServeMux)
+// 端点定义
+def := &luchen.EndpointDefine{
+    Endpoint: sayHello,                         // 端点
+    Path:     "/say-hello",                     // 请求路径
+    ReqType:  reflect.TypeOf(&sayHelloReq{}),   // 请求参数类型
+    RspType:  reflect.TypeOf(&sayHelloRsp{}),   // 响应参数类型
 }
+// 注册端点
+httpServer.Handle(def)
 ```
 
-示例
-```go
-type helloHandler struct {
-}
-
-func (h *helloHandler) Bind(router *luchen.HTTPServeMux) {
-    router.Handle("/say-hello", h.sayHello())
-}
-
-func (h *helloHandler) sayHello() *httptransport.Server {
-    return luchen.NewHTTPTransportServer(
-        makeSayHelloEndpoint(), // 端点绑定，端点的定义在下面说明
-        decodeSayHello,
-        encodeSayHello,
-    )
-}
-```
-
-注册路由
-```go
-handler := &helloHandler{}
-httpServer.Handler(
-    handler,
-)
-```
-
-## 中间件
-
-接口定义
-```go
-// HTTPMiddleware http 请求中间件
-type HTTPMiddleware func(http.Handler) http.Handler
-```
-
-示例：实现提个请求耗时打印中间件
-```go
-func timeMiddleware(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		requestURI := r.RequestURI
-		start := time.Now()
-		defer func() {
-			log.Infof("take time: %s, %v", requestURI, time.Since(start))
-		}()
-		next.ServeHTTP(w, r)
-	})
-}
-```
-
-使用中间件
-```go
-httpServer.Use(
-    timeMiddleware,
-)
-```
-
-在子路由中使用中间件
-```go
-// 为子路由添加中间件
-router.Sub("/log", func(sub *luchen.HTTPServeMux) {
-    sub.Use(logMiddleware)
-    sub.Handle("/say-hello", h.sayHello()) // curl http://localhost:8080/log/say-hello?name=fjx
-})
-
-
-// 打印日志
-func logMiddleware(next http.Handler) http.Handler {
-    return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-        log.InfofCtx(r.Context(), "request %s", r.RequestURI)
-        next.ServeHTTP(w, r)
-    })
-}
-```
-
-
-## 端点绑定
+端点定义
 
 ```go
 // 端点定义，端点即对应一个接口，不同协议转换成相同的参数，交给端点进行处理
-func makeSayHelloEndpoint() kitendpoint.Endpoint {
-    return func(ctx context.Context, request interface{}) (response interface{}, err error) {
-        name := request.(string)
-        response = "hello: " + name
-        return
-    }
-}
-
-// 处理http协议参数解码
-func decodeSayHello(_ context.Context, r *http.Request) (interface{}, error) {
-    name := r.URL.Query().Get("name")
-    return name, nil
-}
-
-// 处理http协议响应参数编码
-func encodeSayHello(_ context.Context, w http.ResponseWriter, resp interface{}) error {
-    _, err := w.Write([]byte(resp.(string)))
-    return err
+func sayHello(ctx context.Context, request any) (response any, err error) {
+	req := request.(*sayHelloReq)
+	response = &sayHelloRsp{
+		Msg: "hello " + req.Name,
+	}
+	return
 }
 ```
 
 ## 参数编解码
 
-通过编解码处理将不同协议转换为统一的结构体，交给 endpoint 处理。 
+通过编解码处理将不同协议转换为统一的结构体，交给 endpoint 处理。
 
-接口定义在：<https://github.com/go-kit/kit/blob/master/transport/http/encode_decode.go>
+HTTPServer 内置了请求解码器，会根据请求的 Content-Type 自动选择合适的解码器：
+
+- application/json: JSON 解码器
+- application/protobuf: Protobuf 解码器
+
+编解码实现可以参考 [server_http.go](https://github.com/fengjx/luchen/blob/master/server_http.go)
 ```go
-// http 请求参数解码
-type DecodeRequestFunc func(context.Context, *http.Request) (request interface{}, err error)
+// getHTTPRequestDecoder 解码 http pb 请求
+func getHTTPRequestDecoder(typ reflect.Type) httptransport.DecodeRequestFunc
 
-// http 响应参数编码
-type EncodeRequestFunc func(context.Context, *http.Request, interface{}) error
+// encodeHTTPResponse 编码 http 响应
+func encodeHTTPResponse(ctx context.Context, w http.ResponseWriter, data any)
 ```
 
-`luchen` 内置了一些 http 协议的请求和响应参数编解码方法，如不满足需求，可以自己实现编解码接口。
+## 静态文件服务器
 
-解码
-```go
-// DecodeParamHTTPRequest 解析 http request query 和 form 参数
-func DecodeParamHTTPRequest[T any](ctx context.Context, r *http.Request) (interface{}, error)
-
-// DecodeJSONRequest 解析 http request body json 参数
-func DecodeJSONRequest[T any](ctx context.Context, r *http.Request) (interface{}, error)
-```
-
-编码
-```go
-// EncodeHTTPJSONResponse http 返回json数据
-// wrapper 对数据重新包装
-func EncodeHTTPJSONResponse(wrapper DataWrapper) httptransport.EncodeResponseFunc
-```
-
-## 静态文件服务
+http server 支持通过本地文件实现一个静态文件服务器，使用示例
 
 ```go
 // 注册静态文件服务访问路径和文件路径
-httpServer.Static("/assets/", "static")
+mux := httpServer.Mux()
+mux.Static("/assets/", "static")
 ```
+
+底层通过 [xin](https://github.com/fengjx/xin) 来实现
 
 ## 示例源码
 
-完整示例代码：[feathttp](https://github.com/fengjx/luchen/tree/master/_example/feathttp)
+- [helloworld](https://github.com/fengjx/luchen/tree/master/_example/helloworld) helloworld 示例
+- [pbdemo](https://github.com/fengjx/luchen/tree/master/_example/pbdemo) 通过 proto 协议定义接口
 

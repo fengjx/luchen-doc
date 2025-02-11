@@ -2,7 +2,7 @@
 layout: home
 
 title: luchen
-titleTemplate: 基于go-kit封装的微服务框架
+titleTemplate: 基于 go-kit 封装的微服务框架
 
 hero:
   name: luchen
@@ -20,15 +20,16 @@ hero:
       alt: luchen
 
 features:
+  - icon: 🌐
+    title: 多协议支持
+    details: 上手简单，支持 HTTP、gRPC 多种传输协议。
   - icon: 🖥
     title: 易扩展
-    details: 秉承go-kit的简单和设计理念，单体服务和微服务都有支持。
+    details: 秉承 go-kit 的简单和设计理念，单体服务和微服务都有支持。
   - icon: 🚀
     title: 完善工具链
-    details: CRUD代码一键生成，使用 proto 文件定义服务接口，生成服务代码。
-  - icon: ⚙
-    title: 网关支持（todo）
-    details: 实现了支持静态路由和动态服务发现网关服务，通过插件化很容易对功能进行扩展。
+    details: 使用 proto 文件定义服务接口，生成接口和 crud 代码
+
 ---
 <style>
 :root {

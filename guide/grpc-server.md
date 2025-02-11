@@ -1,5 +1,6 @@
 # grpc 服务
 
+
 ## 创建一个 gRPC server
 
 ```go
@@ -31,122 +32,50 @@ func WithServerMetadata(md map[string]any) ServerOption
 
 ## 根据 proto 文件生成相关代码
 
-### 安装 grpc 编译工具
+### 安装 lc 命令行工具
 
-- protoc 安装：<https://grpc.io/docs/protoc-installation/>
-- protoc grpc 插件安装：<https://grpc.io/docs/languages/go/quickstart/>
+参考：[lc 命令行工具](/guide/lc)
 
 ### 生成代码
 
 ```bash
-cd _example/featgrpc/pb/
-
-bash build.sh
+lc pbgen -f registrar/pb/greet.proto
 ```
 
-build.sh
-```bash
-#!/usr/bin/env bash
+生成代码如下
+<img src="./pbgen2.jpg" width="400" alt="pbgen">
 
-protoc --go_out=. --go_opt=paths=source_relative \
-    --go-grpc_out=. --go-grpc_opt=paths=source_relative \
-    *.proto
-```
-
-编译后会生成 `greet.pb.go` 和 `greet_grpc.pb.go` 两个文件
-```bash
-$ ls    
-build.sh greet.pb.go greet.proto greet_grpc.pb.go
-```
-
-## 端点绑定
-
-需要将 grpc 接口实现与端点进行绑定。
+## 注册 grpc 服务端点
 
 ```go
-grpcSvr.RegisterService(func(gs *grpc.Server) {
-    // 注册 grpc 服务
-    pb.RegisterGreeterServer(gs, newGreeterServer())
-})
-```
+package main
 
-GreeterServer 实现
-```go
-type GreeterServer struct {
-    pb.UnimplementedGreeterServer
-    sayHello grpctransport.Handler
+import (
+	"time"
+
+	"github.com/fengjx/go-halo/halo"
+	"github.com/fengjx/luchen"
+
+	"github.com/fengjx/luchen/env"
+	"github.com/fengjx/luchen/example/registrar/endpoint"
+)
+
+func main() {
+	// 创建 grpc server
+	gs := luchen.NewGRPCServer(
+		luchen.WithServiceName("grpc.helloworld"),
+		luchen.WithServerAddr(":8088"),
+	)
+
+	// 注册 grpc 服务端点
+	endpoint.RegisterGreeterGRPCHandler(gs)
+
+    // 启动服务并监听 kill 信号
+    gs.Start()
 }
-
-func newGreeterServer() pb.GreeterServer {
-    svr := &GreeterServer{}
-	// 绑定端点，将接口实现交给 endpoint 处理
-    svr.sayHello = luchen.NewGRPCTransportServer(
-        makeSayHelloEndpoint(),
-        luchen.DecodePB[pb.HelloReq],
-        luchen.EncodePB[pb.HelloResp],
-    )
-    return svr
-}
-
-func (s *GreeterServer) SayHello(ctx context.Context, req *pb.HelloReq) (*pb.HelloResp, error) {
-    _, resp, err := s.sayHello.ServeGRPC(ctx, req)
-    if err != nil {
-        return nil, err
-    }
-    return resp.(*pb.HelloResp), nil
-}
-
-func (s *GreeterServer) decodeSayHello(_ context.Context, req interface{}) (interface{}, error) {
-    helloReq := req.(*pb.HelloReq)
-    return &pb.HelloReq{
-        Name: helloReq.Name,
-    }, nil
-}
-
-func (s *GreeterServer) encodeSayHello(_ context.Context, resp interface{}) (interface{}, error) {
-    helloResp := resp.(*pb.HelloResp)
-    return &pb.HelloResp{
-        Message: helloResp.Message,
-    }, nil
-}
-
-func makeSayHelloEndpoint() kitendpoint.Endpoint {
-    return func(ctx context.Context, request interface{}) (response interface{}, err error) {
-        name := request.(string)
-        response = "hello: " + name
-        return
-    }
-}
-```
-
-## 参数编解码
-
-通过编解码处理将不同协议转换为统一的结构体，交给 endpoint 处理。
-
-接口定义：<https://github.com/go-kit/kit/blob/master/transport/grpc/encode_decode.go>
-```go
-// 请求参数解码
-type DecodeRequestFunc func(context.Context, interface{}) (request interface{}, err error)
-
-// 响应参数编码
-type EncodeRequestFunc func(context.Context, interface{}) (request interface{}, err error)
-```
-
-`luchen` 对 grpc 参数和响应编解码简单封装了辅助方法，如果不满足需求可以自己实现。
-
-解码
-```go
-// DecodePB protobuf 解码
-func DecodePB[T any](_ context.Context, req interface{}) (interface{}, error) 
-```
-
-编码
-```go
-// EncodePB protobuf 编码
-func EncodePB[T any](_ context.Context, resp interface{}) (interface{}, error)
 ```
 
 ## 示例源码
 
-完整示例源码：[featgrpc](https://github.com/fengjx/luchen/tree/master/_example/featgrpc)
+- [registrar](https://github.com/fengjx/luchen/tree/master/_example/registrar)
 
