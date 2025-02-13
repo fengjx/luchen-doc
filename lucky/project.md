@@ -10,8 +10,6 @@
 │     ├── auth          // 登录认证
 │     ├── config        // 应用配置
 │     ├── errno         // 错误码定义
-│     ├── kit           // 工具方法
-│     ├── lifecycle     // 生命周期事件定义
 │     └── types         // 公共结构体定义
 ├── current             // context 上下文
 ├── deployments         // 服务部署相关配置参考
@@ -21,9 +19,12 @@
 │     ├── common        // 公共逻辑
 │     ├── init.go       // 业务逻辑初始化
 │     └── sys           // 系统功能
+├── middleware          // 中间件
+├── pkg                 // 通用包
+│     ├── kit           // 工具方法
+│     └── lifecycle     // 生命周期事件定义
 ├── static              // 静态文件
 │     └── pages         // 使用 amis 协议编写的后台页面
-├── t                   // 测试相关
 ├── tools               // 工具
 │     ├── gen           // 代码生成配置
 │     └── init          // 初始化数据

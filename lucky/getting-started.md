@@ -47,7 +47,8 @@ go run main.go
 
 测试服务访问是否正常
 ```bash
-curl -i http://localhost:8080/api/open/app/data
+curl -X POST 'http://localhost:8080/api/open/app/data' \
+-H 'Content-Type: application/json'
 ```
 
 ## 启动前端工程

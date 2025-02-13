@@ -47,23 +47,24 @@ make migrate
 
 生成文件
 ```bash
-logic/cms/internal/data/entity/cms_news.go // entity  
-logic/cms/internal/data/meta/cms_news.go // 数据库表 metadata
-logic/cms/internal/dao/news.go  // dao
-logic/cms/internal/service/news_base.go // service
-logic/cms/internal/endpoint/news_admin_endpoint.go // 端点
-logic/cms/internal/endpoint/news_admin_http.go // http协议端点绑定
-static/pages/cms/news/index.json // 后台页面
+logic/cms/internal/dao/news.go                            // dao
+logic/cms/internal/data/entity/cms_news.go                // entity  
+logic/cms/internal/data/meta/cms_news.go                  // 数据库表 metadata
+logic/cms/internal/endpoint/news/newsadmin_endpoint.go    // 接口端点绑定
+logic/cms/internal/service/news_base.go                   // 后台页面
 ```
 
-需要将端点手动注册到服务中，参考：[logic/cms/internal/endpoint/endpoint.go](https://github.com/fengjx/lucky/blob/master/logic/cms/internal/endpoint/endpoint.go)
+需要将端点手动注册到服务中，参考：[logic/cms/internal/endpoint/endpoint.go](https://github.com/fengjx/lucky/blob/demo/logic/cms/internal/endpoint/init.go)
 
 ```go
-func Init(_ context.Context, httpServer *luchen.HTTPServer) {
-    httpServer.Handler(
-        &newsAdminHandler{},
-        &userAdminHandler{},
-        &subscriptionAdminHandler{},
-    )
+package endpoint
+
+import (
+	"github.com/fengjx/luchen"
+	"github.com/fengjx/lucky/logic/cms/internal/endpoint/news"
+)
+
+func Init(hs *luchen.HTTPServer) {
+	news.RegisterNewsAdminTTPHandler(hs)
 }
 ```
